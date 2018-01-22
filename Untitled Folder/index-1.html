@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<head>
+	<script src="https://unpkg.com/react@0.14.3/dist/react-with-addons.js"></script>
+	<script src="https://unpkg.com/react@15/dist/react.js"></script>
+	<script src="https://unpkg.com/react-dom@15/dist/react-dom.js"></script>
+
+</head>
+
+<body>
+
+	<div id='root'></div>
+
+	<script>
+
+		/*var Hell = React.createClass({
+
+			propTypes: {
+				name: React.PropTypes.string.isRequired,
+				text: React.PropTypes.string,
+			},
+
+			getDefaultProps: function () {
+				return {
+					name: 'fuck',
+				};
+			},
+
+			render: function () {
+				return React.DOM.h1(null, React.DOM.h2({ className: 'hhh' },
+					'yo-ho-ho my name is ' + this.props.name),
+					React.DOM.textarea(null, this.props.text)
+					//'tt'
+					//this.setState(this.props.text.length)
+				);
+			}
+
+		});
+
+		var Factory = React.createFactory(Hell);
+*/
+
+		/*
+		
+				var my_mix = {
+					_log: function (methodName, args) {
+						console.log(this.name + '::' + methodName, args);
+					},
+					componentWillUpdate: function () {
+						this._log('componentWillUpdate', arguments)
+					},
+					componentDidUpdate: function () {
+						this._log('componentDidUpdate', arguments)
+					},
+					componentWillMount: function () {
+						this._log('componentWillMount', arguments)
+					},
+					componentDidMount: function () {
+						this._log('componentDidMount', arguments)
+					},
+					componentWillUnmount: function () {
+						this._log('componentWillUnmount', arguments)
+					}
+				};*/
+
+		var Concon = React.createClass({
+			name: 'Concon',
+			//			mixins: [my_mix],
+
+			propTypes: {
+				ccc: React.PropTypes.string
+			},
+			/*shouldComponentUpdate(nextPro, nextSta_ign) {
+				return nextPro.ccc !== this.props.ccc;
+			},*/
+			//mixins: [React.addons.PureRenderMixin],
+			/*вместо метода выше, всегда добавляй + скрипт script src="https://unpkg.com/react@0.14.3/dist/react-with-addons.js*/
+
+			render: function () {
+				console.log(this.name + '::render()');
+				return React.DOM.p(null, this.props.ccc)
+			}
+		});
+
+		var TextAreaCounter = React.createClass({
+
+			propTypes: {
+				text: React.PropTypes.string,
+			},
+
+			getDefaultProps: function () {
+				return {
+					text_dop: ''
+				}
+			},
+
+			//mixins: [React.addons.PureRenderMixin],
+
+			getInitialState: function () {
+				return {
+					text: this.props.text_dop
+				}
+			},
+
+			_textChange: function (e_vent) {
+				this.setState({
+					text: e_vent.target.value,
+				});
+			},
+
+			//для корректной работы STATE при изменении PROPS из вне
+			componentWillReceiveProps: function (newProp_s) {
+				this.setState({
+					text: newProp_s.text_dop
+				});
+			},
+
+
+
+			name: 'TextAreaCounter',
+
+			render: function () {
+
+				var ncon = null;
+				if (this.state.text.length > 0) {
+					ncon = React.createElement(Concon, { ccc: this.state.text.length })
+				};
+				console.log(this.name + '::render()');
+				return React.DOM.div(null,
+					React.DOM.textarea({
+						value: this.state.text,
+						onChange: this._textChange,
+					}),
+					ncon
+				);
+			}
+		});
+
+
+
+
+
+		ReactDOM.render(React.createElement(TextAreaCounter),
+			document.getElementById('root'));
+
+		/*var myTextAreaCounter = ReactDOM.render(
+			React.createElement(TextAreaCounter, {
+				text_dop: "Bob",
+			}),
+			document.getElementById("root")
+		);*/
+	</script>
+</body>
+
+</html>

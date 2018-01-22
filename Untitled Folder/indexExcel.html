@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<head>
+    <script src="https://unpkg.com/react@0.14.3/dist/react-with-addons.js"></script>
+    <script src="https://unpkg.com/react@0.14.7/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom@0.14.7/dist/react-dom.js"></script>
+    <style>
+        table {
+            border: 4px solid black
+        }
+
+        .help_button {
+            margin: 10px
+        }
+
+        .button {
+            border-radius: 5px;
+            margin: 20px;
+            border-radius: 5px;
+            color: blueviolet;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id='root'></div>
+
+    <script>
+
+        var headers = [
+            "Book", "Author", "Language", "Published", "Sales"
+        ];
+        var data = [
+            ["The Lord of the Rings", "J. R. R. Tolkien", "English", "1954–1955", "150 million"],
+            ["Le Petit Prince (The Little Prince)", "Antoine deSaint- Exupéry", "French", "1943", "140 million"],
+            ["Harry Potter and the Philosopher's Stone", "J. K. Rowling", "English", "1997", "107 million"],
+            ["And Then There Were None", "Agatha Christie", "English", "1939", "100 million"],
+            ["Dream of the Red Chamber", "Cao Xueqin", "Chinese", "1754–1791", "100 million"],
+            ["The Hobbit", "J. R. R. Tolkien", "English", "1937", "100 million"],
+            ["She: A History of Adventure", "H. Rider Haggard", "English", "1887", "100 million"],
+        ];
+
+
+        var Excel = React.createClass({
+            displayName: 'Excel',
+
+            propTypes: {
+                // function() { console.log('propTypest') },
+                headerseeee: React.PropTypes.arrayOf(
+                    React.PropTypes.string
+                ),
+                initialData: React.PropTypes.arrayOf(
+                    React.PropTypes.arrayOf(
+                        React.PropTypes.any
+                    )
+                )
+            },
+
+            getInitialState: function () {
+                // console.log('getInitialStat');
+                return {
+                    datahh: this.props.initialData,
+                    datahh_d: this.props.initialData,
+                    sortby: null,
+                    descending: false,
+                    edit: null
+                }
+            },
+
+            _sort: function (e) {
+                //console.log('_sort;;;;this.state=== ' + this.state + '----this.props=== ' + this.props);
+                var column = e.target.cellIndex;
+                var datahh = this.state.datahh.slice();
+                var descending = this.state.sortby === column && !this.state.descending;
+                datahh.sort(function (a, b) {
+                    //console.log('datahh.sort;;;;this.state=== ' + this.state + '----this.props=== ' + this.props);
+                    return descending
+                        ? (a[column] > b[column] ? 1 : -1)
+                        : (a[column] < b[column] ? 1 : -1);
+                });
+                this.setState({
+                    //function() { console.log('setd;;;;this.state=== ' + this.state + '----this.props=== ' + this.props) },
+                    datahh: datahh,
+                    sortby: column,
+                    descending: descending
+                })
+            },
+
+            del_sort: function () {
+                this.setState({
+                    datahh: this.state.datahh_d
+                })
+            },
+
+            _showEditor: function (e) {
+                this.setState({
+                    edit: {
+                        rown: parseInt(e.target.dataset.row, 10),
+                        cell: e.target.cellIndex
+                    }
+                });
+            },
+
+            _save: function (e) {
+                e.preventDefault();//чтоб страница не перезагружалась
+                inpu = e.target.firstChild;//ссылка на поле ввода
+                var ne_datahh = this.state.datahh.slice();
+                ne_datahh[this.state.edit.rown][this.state.edit.cell] = inpu.value;
+                this.setState({
+                    edit: null,
+                    datahh: ne_datahh
+                })
+            },
+
+            _theader: function () {
+                return (React.DOM.thead({ onClick: this._sort },
+                    React.DOM.tr(null,
+                        this.props.headerseeee.map(function (x, id_) {
+  /*решить проблему*/                   if (this._sort && this.state.sortby === id_) {
+                                x += this.state.descending ? ' \u2191' : ' \u2193'
+                            };
+                            return React.DOM.th({ key: id_ }, x);
+                        }
+                        )
+                    )
+                ))
+            },
+
+            _tbody: function () {
+                return (this.state.datahh.map(function (row, id_) {
+                    return (React.DOM.tr({ key: id_ },
+                        row.map(function (ggg, id_g) {
+                            var content = ggg;
+                            var edit = this.state.edit;
+                            if (edit && edit.rown === id_ && id_g === edit.cell) {
+                                content = React.DOM.form({ onSubmit: this._save },
+                                    React.DOM.input({ type: 'text', defaultValue: content }))
+                            };
+                            return (
+                                React.DOM.td({
+                                    key: id_g,
+                                    'data-row': id_
+                                }, content)
+                            );
+                        }, this)
+                    ));
+                }, this))
+            },
+
+            search: function () {
+                return (
+                    React.DOM.tr({ type: 'text' }, function () {
+                        React.DOM.input({ type: 'text' }, function () {
+
+                        })
+                    })
+                )
+            },
+
+            _expo: function (format, even) {
+                var contents = format === 'json'
+                    ? JSON.stringify(this.state.data)
+                    : this.state.data.reduce(function (result, row) {
+                        return result
+                            + row.reduce(function (rowresult, cell, idx) {
+                                return rowresult
+                                    + '"'
+                                    + cell.replace(/"/g, '""')
+                                    + '"'
+                                    + (idx < row.length - 1 ? ',' : '');
+                            }, '')
+                            + "\n";
+                    }, '');
+                var URL = window.URL || window.webkitURL;
+                var blob = new Blob([contents], { type: 'text/' + format });
+                even.target.href = URL.createObjectURL(blob);
+                even.target.download = 'data.' + format;
+            },
+
+            render: function () {
+                //       console.log('render;;;;this.state=== ' + this.state.value + '----this.props=== ' + this.props.value);
+                return (
+                    React.DOM.div(null,
+                        React.DOM.div({ className: 'help_button' },
+                            React.DOM.button({ onClick: this.del_sort }, 'Отмена'),
+                            React.DOM.button({ onClick: this.search }, 'Search_ON'),
+                            React.DOM.a({
+                                onClick: this._expo.bind(this, 'json'),
+                                href: 'data.json'
+                            }, 'Export JSON'),
+                            React.DOM.a({
+                                onClick: this._expo.bind(this, 'csv'),
+                                href: 'data.csv'
+                            }, 'Export CSV'),
+                        ),
+                        React.DOM.table(null,
+                            this._theader(),
+                            React.DOM.tbody({ onDoubleClick: this._showEditor },
+                                this.search(),
+                                this._tbody()
+                            )
+                        )
+                    )
+                )
+            }
+        });
+
+        ReactDOM.render(React.createElement(Excel, {
+            headerseeee: headers,
+            initialData: data
+        }),
+            document.getElementById('root')
+        )
+
+
+    </script>
+
+
+</body>
+
+</html>
